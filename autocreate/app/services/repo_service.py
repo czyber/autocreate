@@ -35,7 +35,7 @@ class RepoService:
 
     def download(self):
         """
-        This function is heavily inspired by
+        This function is largely copy-pasted from the Seer project:
         https://github.com/getsentry/seer/blob/11827c2237c46c0c7f43c19d9b53074913775105/src/seer/automation/codebase/repo_client.py#L115
         :return:
         """
