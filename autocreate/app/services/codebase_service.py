@@ -1,13 +1,11 @@
 import os
 
 from langchain_community.document_loaders import TextLoader
-from langchain_community.vectorstores import DeepLake
-from langchain_openai import OpenAIEmbeddings
 from langchain_text_splitters import CharacterTextSplitter
 
 from autocreate.app.models.user import User
+from autocreate.app.services.index_storage_service import IndexStorageService
 from autocreate.app.services.repo_service import RepoService
-from autocreate.app.utils.helpers import cleanup_dir
 from autocreate.database.models.user import UserModel
 from autocreate.infrastructure.sql_storage import SqlStorage
 from autocreate.app.models.codebase import Codebase
@@ -18,6 +16,7 @@ class CodebaseService:
     def __init__(self):
         self._codebase_repository = SqlStorage(domain_entity=Codebase, db_entity=CodebaseModel)
         self._user_repository = SqlStorage(domain_entity=User, db_entity=UserModel)
+        self._index_storage_service = IndexStorageService()
 
     def create_codebase(self, codebase: Codebase):
         return self._codebase_repository.save(codebase)
@@ -59,41 +58,23 @@ class CodebaseService:
             )
         )
 
-        index = self._index(
+        self._index(
             codebase=codebase,
             path=tmp_repo_dir
         )
 
-        print(index)
         return tmp_dir, tmp_repo_dir
 
     def _index(self, codebase: Codebase, path: str) -> list[str]:
-        embeddings = OpenAIEmbeddings(disallowed_special=())
-
         docs = []
         for dirpath, dirnames, filenames in os.walk(path):
             for file in filenames:
                 try:
                     loader = TextLoader(os.path.join(dirpath, file), encoding='utf-8')
                     docs.extend(loader.load_and_split())
-                except Exception as e:
+                except Exception as e:  # noqa
                     pass
 
         text_splitter = CharacterTextSplitter(chunk_size=1000, chunk_overlap=0)
         texts = text_splitter.split_documents(docs)
-        username = "czyber"
-        repo_name = f"{codebase.user_id}-{codebase.name}-{codebase.sha}"
-        db = DeepLake(dataset_path=f"hub://{username}/{repo_name}", overwrite=True, embedding=embeddings, runtime={"tensor_db": True})
-        return db.add_documents(texts)
-
-    def _retrieve(self, codebase: Codebase):
-        username = "czyber"
-        repo_name = f"{codebase.user_id}-{codebase.name}-{codebase.sha}"
-        db = DeepLake(dataset_path=f"hub://{username}/{repo_name}", overwrite=False)
-        retriever = db.as_retriever()
-        retriever.search_kwargs['distance_metric'] = 'cos'
-        retriever.search_kwargs['fetch_k'] = 100
-        retriever.search_kwargs['k'] = 10
-
-
-
+        return self._index_storage_service.add_documents(identifier=codebase.identifier, documents=texts)

@@ -28,4 +28,8 @@ class Codebase(BaseModel):
             url=model.url
         )
 
+    @property
+    def identifier(self):
+        return f"{self.user_id}-{self.name}-{self.sha}"
+
 
