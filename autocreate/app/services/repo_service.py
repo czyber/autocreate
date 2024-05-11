@@ -34,6 +34,11 @@ class RepoService:
         return self._repo.get_contents("")
 
     def download(self):
+        """
+        This function is heavily inspired by
+        https://github.com/getsentry/seer/blob/11827c2237c46c0c7f43c19d9b53074913775105/src/seer/automation/codebase/repo_client.py#L115
+        :return:
+        """
         tmp_dir = tempfile.mkdtemp(prefix=f"{self._repo_owner}-{self._repo_name}_{self.sha}")
         tmp_repo_dir = os.path.join(tmp_dir, "repo")
         os.makedirs(tmp_repo_dir, exist_ok=True)
