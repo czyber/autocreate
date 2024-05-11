@@ -1,0 +1,26 @@
+[tool.poetry]
+name = "autocreate"
+version = "0.1.0"
+description = ""
+authors = ["czyber <czypka.github@gmail.com>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.11"
+langchain = "^0.1.19"
+openai = "^1.27.0"
+tiktoken = "^0.6.0"
+deeplake = "^3.9.4"
+python-dotenv = "^1.0.1"
+langchain-openai = "^0.1.6"
+sqlalchemy = "^2.0.30"
+alembic = "^1.13.1"
+fastapi = "^0.111.0"
+uvicorn = "^0.29.0"
+pygithub = "^2.3.0"
+requests = "^2.31.0"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
