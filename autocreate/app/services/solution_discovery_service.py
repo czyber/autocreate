@@ -32,9 +32,7 @@ class SolutionDiscoveryService:
 
         solution = self._add_domain_entity(codebase, domain_entity)
 
-
         self._codebase_repository.update(codebase)
-
 
     def _add_domain_entity(self, codebase: Codebase, domain_entity: DomainEntity) -> Solution:
         retriever = self._index_storage_service.get_retriever(codebase.id)
